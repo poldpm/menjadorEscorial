@@ -48,6 +48,7 @@ h1{margin:2px 0 14px;font:800 1.55rem/1.1 var(--display);letter-spacing:-.01em}
 
 .dietes{max-width:1100px;margin:0 auto;padding:14px 18px 4px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
 .dietes::-webkit-scrollbar{display:none}
+@media (hover:hover) and (pointer:fine){ .dietes{flex-wrap:wrap;overflow:visible} }
 .dietes button{flex:none;border:1.5px solid var(--linia);background:var(--paper);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:.95rem;white-space:nowrap}
 .dietes button[aria-pressed="true"]{background:var(--granat);border-color:var(--granat);color:var(--sobre)}
 
@@ -85,7 +86,7 @@ footer{max-width:1100px;margin:0 auto;padding:6px 18px 40px;font-size:.9rem;colo
   h1{font-size:2rem}
   .setmana{max-width:520px}
   .setmana h2{text-align:left;font-size:1.35rem}
-  .dietes{padding:18px 24px 8px}
+  .dietes{padding:18px 24px 8px;flex-wrap:wrap;overflow:visible}
   main{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:12px 24px 28px}
   .dia{grid-template-columns:1fr;border:1px solid var(--linia);border-radius:10px;align-content:start;padding:18px 16px}
   .dia.avui{border-color:var(--avui)}
@@ -198,7 +199,7 @@ function pintar(){
   var url=dades.pdfs && dades.pdfs[iso(sumaDies(dilluns,2)).slice(0,7)+'|'+dieta];
   $('pdf').hidden=!url; if(url) $('pdf').href=url;
 
-  var u=new URL(location.href); u.searchParams.set('menu',dieta); history.replaceState(null,'',u);
+  var u=new URL(location.href); u.searchParams.set('menu',dieta); u.searchParams.set('setmana',iso(dilluns)); history.replaceState(null,'',u);
   try{localStorage.setItem('menu-dieta',dieta)}catch(e){}
 
   if(window.innerWidth<880){var a=document.querySelector('.dia.avui'); if(a && !pintar.fet){pintar.fet=true; a.scrollIntoView({block:'center'})}}
@@ -214,6 +215,9 @@ function iniciar(d){
   dieta=par||guardada||'general';
   var ara=new Date(); dilluns=dillunsDe(ara);
   if(ara.getDay()===6||ara.getDay()===0) dilluns=sumaDies(dilluns,7); // cap de setmana: la setmana que ve
+  // Enllaç d'una setmana concreta (?setmana=AAAA-MM-DD). Si ja ha passat, s'obre la setmana actual.
+  var ps=new URLSearchParams(location.search).get('setmana');
+  if(ps && /^\d{4}-\d{2}-\d{2}$/.test(ps)){ var q=ps.split('-'); var dp=dillunsDe(new Date(+q[0],q[1]-1,+q[2])); if(dp>=dilluns) dilluns=dp; }
   if(d.actualitzat) $('actualitzat').textContent='Actualitzat el '+new Date(d.actualitzat).toLocaleDateString('ca',{day:'numeric',month:'long'})+'.';
   pintarDietes(); pintar();
 }
@@ -222,7 +226,8 @@ $('dietes').addEventListener('click',function(e){var b=e.target.closest('button'
 $('ant').addEventListener('click',function(){dilluns=sumaDies(dilluns,-7);pintar()});
 $('seg').addEventListener('click',function(){dilluns=sumaDies(dilluns,7);pintar()});
 $('compartir').addEventListener('click',function(){
-  var dadesC={title:'Menú del menjador',text:'El menú del menjador d\'aquesta setmana:',url:location.href};
+  var t=titolSetmana(dilluns); t=t.charAt(0).toLowerCase()+t.slice(1);
+  var dadesC={title:'Menú del menjador',text:'Menú del menjador '+t+':',url:location.href};
   if(navigator.share){navigator.share(dadesC).catch(function(){})}
   else if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(function(){$('compartir').textContent='Enllaç copiat';setTimeout(function(){$('compartir').textContent="Compartir l'enllaç"},2000)})}
 });
