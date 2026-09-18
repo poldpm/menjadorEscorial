@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menú del menjador · Vedruna Escorial Vic</title>
+<meta name="description" content="El menú del menjador de la setmana, amb totes les dietes.">
+<meta property="og:title" content="Menú del menjador de l'escola">
+<meta property="og:description" content="Consulta què es menja aquesta setmana a Vedruna Escorial Vic.">
+<meta name="theme-color" content="#7B1E2E">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --granat:#7B1E2E; --granat-fosc:#5E1522; --rosa:#F6E9EB;
+  --sobre:#fff; --avui:#7B1E2E; --tinta:#222; --gris:#6B6568; --linia:#E4E0E1; --paper:#fff; --fons:#FAF9F9;
+  --display:"Bricolage Grotesque", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --text:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --granat:#D9798A; --granat-fosc:#7B1E2E; --rosa:#3A2227; --sobre:#1B1819; --avui:#7B1E2E;
+    --tinta:#F1EDEE; --gris:#B3AAAD; --linia:#3A3436; --paper:#1B1819; --fons:#141213;
+  }
+}
+:root[data-theme="dark"]{
+  --granat:#D9798A; --granat-fosc:#7B1E2E; --rosa:#3A2227; --sobre:#1B1819; --avui:#7B1E2E;
+  --tinta:#F1EDEE; --gris:#B3AAAD; --linia:#3A3436; --paper:#1B1819; --fons:#141213;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--fons);color:var(--tinta);font:17px/1.45 var(--text)}
+a{color:var(--granat)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--granat);outline-offset:2px;border-radius:6px}
+
+header{background:var(--granat-fosc);color:#fff;padding:18px 0 22px}
+.cap{max-width:1100px;margin:0 auto;padding:0 18px}
+.escola{margin:0;font-size:.9rem;opacity:.85}
+h1{margin:2px 0 14px;font:800 1.55rem/1.1 var(--display);letter-spacing:-.01em}
+.setmana{display:flex;align-items:center;gap:10px}
+.setmana h2{flex:1;margin:0;font:500 1.15rem/1.2 var(--display);text-align:center}
+.nav{width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(255,255,255,.45);background:transparent;color:#fff;font-size:1.3rem;cursor:pointer;display:grid;place-items:center}
+.nav:disabled{opacity:.25;cursor:default}
+
+.dietes{max-width:1100px;margin:0 auto;padding:14px 18px 4px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.dietes::-webkit-scrollbar{display:none}
+.dietes button{flex:none;border:1.5px solid var(--linia);background:var(--paper);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:.95rem;white-space:nowrap}
+.dietes button[aria-pressed="true"]{background:var(--granat);border-color:var(--granat);color:var(--sobre)}
+
+main{max-width:1100px;margin:0 auto;padding:8px 0 24px}
+.dia{display:grid;grid-template-columns:74px 1fr;gap:4px 14px;padding:18px;border-bottom:1px solid var(--linia);background:var(--paper)}
+.num{font:800 3rem/0.9 var(--display);color:var(--granat);letter-spacing:-.03em}
+.nomdia{display:block;font:500 .95rem/1.2 var(--text);color:var(--gris);letter-spacing:0;margin-top:6px}
+.plats{margin:0;display:grid;gap:8px}
+.plat{display:grid;gap:0}
+.plat dt{font-size:.8rem;color:var(--gris)}
+.plat dd{margin:0;font-weight:700;font-size:1.05rem}
+.plat.petit dd{font-weight:400;font-size:.98rem}
+.peu{grid-column:2;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.85rem;color:var(--gris);margin-top:6px}
+.sopar{color:var(--tinta)}
+.festiu{grid-column:2;align-self:center;color:var(--gris);font-style:italic;margin:0}
+
+/* Avui: l'únic element que crida */
+.dia.avui{background:var(--avui);color:#fff;border-bottom-color:transparent}
+.dia.avui .num{color:#fff}
+.dia.avui .nomdia,.dia.avui .plat dt,.dia.avui .peu,.dia.avui .sopar,.dia.avui .festiu{color:rgba(255,255,255,.85)}
+.xip{display:inline-block;background:#fff;color:var(--granat-fosc);font:700 .72rem/1 var(--text);padding:4px 7px;border-radius:4px;margin-top:8px}
+
+.buit{padding:40px 18px;text-align:center;color:var(--gris)}
+.buit strong{display:block;color:var(--tinta);font:500 1.2rem var(--display);margin-bottom:6px}
+
+footer{max-width:1100px;margin:0 auto;padding:6px 18px 40px;font-size:.9rem;color:var(--gris);display:grid;gap:14px}
+.accions{display:flex;flex-wrap:wrap;gap:10px}
+.boto{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--granat);color:var(--granat);background:transparent;border-radius:999px;padding:10px 16px;text-decoration:none;font-weight:700;cursor:pointer;font-size:.95rem}
+.boto.ple{background:var(--granat);color:var(--sobre)}
+.avis{margin:0;font-size:.82rem}
+
+@media (min-width:880px){
+  header{padding:28px 0 30px}
+  .cap{padding:0 24px}
+  h1{font-size:2rem}
+  .setmana{max-width:520px}
+  .setmana h2{text-align:left;font-size:1.35rem}
+  .dietes{padding:18px 24px 8px}
+  main{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:12px 24px 28px}
+  .dia{grid-template-columns:1fr;border:1px solid var(--linia);border-radius:10px;align-content:start;padding:18px 16px}
+  .dia.avui{border-color:var(--avui)}
+  .peu,.festiu{grid-column:1}
+  .buit{grid-column:1/-1}
+  footer{padding:0 24px 48px}
+}
+@media (prefers-reduced-motion:no-preference){ .dia.avui{animation:marca .5s ease-out} @keyframes marca{from{box-shadow:inset 6px 0 0 #fff}to{box-shadow:inset 0 0 0 #fff}} }
+</style>
+</head>
+<body>
+<header>
+  <div class="cap">
+    <p class="escola">Vedruna Escorial Vic</p>
+    <h1>Menú del menjador</h1>
+    <div class="setmana">
+      <button class="nav" id="ant" aria-label="Setmana anterior">‹</button>
+      <h2 id="titol" aria-live="polite">Carregant…</h2>
+      <button class="nav" id="seg" aria-label="Setmana següent">›</button>
+    </div>
+  </div>
+</header>
+
+<nav class="dietes" id="dietes" aria-label="Tipus de menú"></nav>
+<main id="dies"></main>
+
+<footer>
+  <div class="accions">
+    <button class="boto ple" id="compartir">Compartir l'enllaç</button>
+    <a class="boto" id="pdf" target="_blank" rel="noopener" hidden>PDF oficial amb al·lèrgens</a>
+  </div>
+  <p class="avis">La fruita i alguns plats poden variar segons disponibilitat. Si el vostre fill o filla té una al·lèrgia, consulteu sempre el PDF oficial. <span id="actualitzat"></span></p>
+</footer>
+
+<script>
+(function(){
+var MESOS=['gener','febrer','març','abril','maig','juny','juliol','agost','setembre','octubre','novembre','desembre'];
+var DIES=['Dilluns','Dimarts','Dimecres','Dijous','Divendres'];
+var $=function(id){return document.getElementById(id)};
+var dades, dieta, dilluns, setmanes=[];
+
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function sumaDies(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x}
+function dillunsDe(d){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate());var w=(x.getDay()+6)%7;return sumaDies(x,-w)}
+function deMes(m){return /^[aeiou]/.test(MESOS[m])?"d'"+MESOS[m]:'de '+MESOS[m]}
+function del(n){return (n===1||n===11)?"De l'"+n:'Del '+n}
+function al(n){return (n===1||n===11)?"a l'"+n:'al '+n}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+function titolSetmana(a){
+  var b=sumaDies(a,4);
+  if(a.getMonth()===b.getMonth()) return del(a.getDate())+' '+al(b.getDate())+' '+deMes(b.getMonth());
+  return del(a.getDate())+' '+deMes(a.getMonth())+' '+al(b.getDate())+' '+deMes(b.getMonth());
+}
+
+// Idea per sopar, seguint el recomanador del mateix menú
+function tipusPrimer(s){s=s.toLowerCase();
+  if(/llenti|cigron|mongetes seques|fesol|faves/.test(s))return 'llegum';
+  if(/arròs|macarron|espagueti|espiral|fideu|pasta|cuscús|canelon|lasany|quinoa/.test(s))return 'pasta';
+  if(/verdur|bròquil|coliflor|mongetes tendres|crema|carbass|sopa|amanida|espinac|pèsol|patata/.test(s))return 'verdura';
+  return null}
+function tipusSegon(s){s=s.toLowerCase();
+  if(/llenti|cigron|mongetes|soja|fesol|tofu|hummus/.test(s))return 'llegum';
+  if(/truita|\bous?\b/.test(s))return 'ou';
+  if(/abadejo|lluç|salmó|bacallà|peix|tonyina|llenguado|\brap\b|sardin|seitó|calamar|marisc|palaia|gall de sant pere/.test(s))return 'peix';
+  if(/pollastre|porc|llom|vedella|hamburguesa|carn|pernilet|magre|gall dindi|conill|xai|mandonguill|salsitx|botifarr|pit de/.test(s))return 'carn';
+  return null}
+function sopar(p){
+  var a={verdura:'pasta, arròs o patata',pasta:'verdura',llegum:'verdura'}[tipusPrimer(p.primer||'')];
+  var b={ou:'peix o carn',carn:'peix o ou',peix:'ou o carn',llegum:'ou o peix'}[tipusSegon(p.segon||'')];
+  if(!a&&!b)return '';
+  return 'Per sopar: '+[a,b].filter(Boolean).join(' i ');
+}
+
+function pintarDietes(){
+  var claus=Object.keys(dades.dietes).sort(function(a,b){return (dades.dietes[a].ordre||0)-(dades.dietes[b].ordre||0)||dades.dietes[a].nom.localeCompare(dades.dietes[b].nom,'ca')});
+  if(!dades.dietes[dieta]) dieta=claus[0];
+  $('dietes').hidden = claus.length<2;
+  $('dietes').innerHTML=claus.map(function(k){
+    return '<button type="button" data-k="'+k+'" aria-pressed="'+(k===dieta)+'">'+esc(dades.dietes[k].nom)+'</button>'}).join('');
+}
+
+function pintar(){
+  var avui=iso(new Date());
+  $('titol').textContent=titolSetmana(dilluns);
+  var html='', algun=false;
+  for(var i=0;i<5;i++){
+    var d=sumaDies(dilluns,i), k=iso(d), p=(dades.dies[k]||{})[dieta];
+    var esAvui=(k===avui);
+    var cap='<div class="num">'+d.getDate()+'<span class="nomdia">'+DIES[i]+'</span>'+(esAvui?'<span class="xip">Avui</span>':'')+'</div>';
+    if(!p){ html+='<article class="dia'+(esAvui?' avui':'')+'">'+cap+'<p class="festiu">Menú encara no disponible</p></article>'; continue; }
+    algun=true;
+    if(p.festiu){ html+='<article class="dia'+(esAvui?' avui':'')+'">'+cap+'<p class="festiu">No hi ha servei de menjador</p></article>'; continue; }
+    var plats='';
+    if(p.primer) plats+='<div class="plat"><dt>Primer</dt><dd>'+esc(p.primer)+'</dd></div>';
+    if(p.segon) plats+='<div class="plat"><dt>Segon</dt><dd>'+esc(p.segon)+'</dd></div>';
+    if(p.guarnicio) plats+='<div class="plat petit"><dt>Acompanyament</dt><dd>'+esc(p.guarnicio)+'</dd></div>';
+    if(p.postres) plats+='<div class="plat petit"><dt>Postres</dt><dd>'+esc(p.postres.replace(/^Pa .+? i /,''))+'</dd></div>';
+    var s=sopar(p);
+    html+='<article class="dia'+(esAvui?' avui':'')+'" id="d-'+k+'">'+cap+'<dl class="plats">'+plats+'</dl>'+
+      '<div class="peu">'+(s?'<span class="sopar">'+esc(s)+'</span>':'')+(p.kcal?'<span>'+p.kcal+' kcal</span>':'')+'</div></article>';
+  }
+  if(!algun) html='<div class="buit"><strong>Encara no hi ha el menú d\'aquesta setmana</strong>Es publica a principis de cada mes. Torna-hi d\'aquí a uns dies.</div>';
+  $('dies').innerHTML=html;
+
+  var i0=setmanes.indexOf(iso(dilluns));
+  $('ant').disabled = i0<=0 && !(setmanes.length && iso(dilluns)>setmanes[0]);
+  $('seg').disabled = i0>=setmanes.length-1 && !(setmanes.length && iso(dilluns)<setmanes[setmanes.length-1]);
+
+  var url=dades.pdfs && dades.pdfs[iso(sumaDies(dilluns,2)).slice(0,7)+'|'+dieta];
+  $('pdf').hidden=!url; if(url) $('pdf').href=url;
+
+  var u=new URL(location.href); u.searchParams.set('menu',dieta); history.replaceState(null,'',u);
+  try{localStorage.setItem('menu-dieta',dieta)}catch(e){}
+
+  if(window.innerWidth<880){var a=document.querySelector('.dia.avui'); if(a && !pintar.fet){pintar.fet=true; a.scrollIntoView({block:'center'})}}
+}
+
+function iniciar(d){
+  dades=d;
+  var cl=Object.keys(d.dies).sort(), vistes={};
+  cl.forEach(function(k){var p=k.split('-');vistes[iso(dillunsDe(new Date(+p[0],p[1]-1,+p[2])))]=1});
+  setmanes=Object.keys(vistes).sort();
+  var par=new URLSearchParams(location.search).get('menu'), guardada=null;
+  try{guardada=localStorage.getItem('menu-dieta')}catch(e){}
+  dieta=par||guardada||'general';
+  var ara=new Date(); dilluns=dillunsDe(ara);
+  if(ara.getDay()===6||ara.getDay()===0) dilluns=sumaDies(dilluns,7); // cap de setmana: la setmana que ve
+  if(d.actualitzat) $('actualitzat').textContent='Actualitzat el '+new Date(d.actualitzat).toLocaleDateString('ca',{day:'numeric',month:'long'})+'.';
+  pintarDietes(); pintar();
+}
+
+$('dietes').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;dieta=b.dataset.k;pintarDietes();pintar()});
+$('ant').addEventListener('click',function(){dilluns=sumaDies(dilluns,-7);pintar()});
+$('seg').addEventListener('click',function(){dilluns=sumaDies(dilluns,7);pintar()});
+$('compartir').addEventListener('click',function(){
+  var dadesC={title:'Menú del menjador',text:'El menú del menjador d\'aquesta setmana:',url:location.href};
+  if(navigator.share){navigator.share(dadesC).catch(function(){})}
+  else if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(function(){$('compartir').textContent='Enllaç copiat';setTimeout(function(){$('compartir').textContent="Compartir l'enllaç"},2000)})}
+});
+
+fetch('menus.json?v='+Date.now()).then(function(r){if(!r.ok)throw 0;return r.json()}).then(iniciar).catch(function(){
+  if(window.MENUS_DEMO) return iniciar(window.MENUS_DEMO);
+  $('titol').textContent='Menú del menjador';
+  $('dies').innerHTML='<div class="buit"><strong>No s\'ha pogut carregar el menú</strong>Comprova la connexió i torna a obrir la pàgina.</div>';
+});
+})();
+</script>
+</body>
+</html>
