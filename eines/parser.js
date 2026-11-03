@@ -63,14 +63,79 @@ function parsejarMenu(text) {
   var kcal = (graella.match(/Kcal: ([\d.,]+)/g) || []).map(function (s) { return Math.round(parseFloat(s.replace('Kcal: ', '').replace(',', '.'))); });
   if (kcal.length === claus.length) claus.forEach(function (k, i) { if (kcal[i] > 0) dies[k].kcal = kcal[i]; });
 
-  // Treure dies fora del mes que estiguin buits i marcar festius
+  // 6. Dinars especials: dies sense plats però amb una nota a la graella
+  notesDeLaGraella(graella).forEach(function (nota, setmana) {
+    if (!nota) return;
+    var buits = [];
+    for (var j = 0; j < 5; j++) {
+      var dt = new Date(dilluns1.getTime() + (setmana * 7 + j) * 86400000);
+      var kk = dt.toISOString().slice(0, 10);
+      if (dies[kk] && !dies[kk].primer && !dies[kk].segon && +kk.slice(5, 7) - 1 === mes) buits.push(kk);
+    }
+    if (buits.length === 1) dies[buits[0]].nota = nota;  // només si no hi ha dubte de quin dia és
+  });
+
+  // Treure dies fora del mes que estiguin buits; la resta, festius
   claus.forEach(function (k) {
     var d = dies[k];
-    if (!d.primer && !d.segon) {
+    if (!d.primer && !d.segon && !d.nota) {
       if (+k.slice(5, 7) - 1 !== mes) delete dies[k]; else d.festiu = true;
     }
   });
   return { mes: mes, any: any, etiqueta: etiqueta, dies: dies };
+}
+
+/**
+ * Busca a la graella els dinars especials ("Dinar especial castanyada" i semblants).
+ * Torna una nota per setmana, o cadena buida si no n'hi ha cap.
+ * La graella ve partida en blocs per les files de números: "23 24 25 26 27".
+ */
+// El nucli de la nota d'un dinar especial. El que ve després s'hi afegeix
+// paraula per paraula (vegeu notesDeLaGraella), no d'una revolada.
+var ESPECIALS = /(?:dinar|sopar|àpat|apat|berenar|men[úu])\s+especial|dinar\s+de\s+(?:nadal|carnestoltes|fi\s+de\s+curs|sant\s+jordi)|castanyada|panellets|xocolatada|p[ií]cnic|barbacoa|cal[çc]otada/i;
+// Paraules que ja són una altra cosa del PDF i on s'ha de tallar la nota
+var TALL = /^(?:Llistat|Kcal|Pots|Els|La|El|Men[úu]|Pa|Setmana|Dieta|Fruita|Enciam|Patates|Arròs|Crema|Sopa|DILLUNS|DIMARTS|DIMECRES|DIJOUS|DIVENDRES|FESTIU)$/;
+
+/**
+ * Busca a la graella els dinars especials ("Dinar especial castanyada" i semblants).
+ * Torna una nota per setmana, o cadena buida si no n'hi ha cap.
+ * La graella ve partida en blocs per les files de números: "23 24 25 26 27".
+ *
+ * La nota s'allarga mentre les paraules segueixin l'estil del nucli: si el PDF
+ * ho escriu en majúscules, mentre siguin majúscules; si no, mentre siguin
+ * minúscules. Els noms dels plats comencen amb majúscula, i així no s'hi colen.
+ */
+function notesDeLaGraella(graella) {
+  var blocs = String(graella).split(/\s(?=\d{2} \d{2} \d{2} \d{2} \d{2}\s)/);
+  // El primer tros només és capçalera si no comença ja amb una fila de números.
+  if (blocs.length > 1 && !/^\d{2} \d{2} \d{2} \d{2} \d{2}\s/.test(blocs[0])) blocs = blocs.slice(1);
+
+  return blocs.map(function (b) {
+    var pla = String(b).replace(/\s+/g, ' ');
+    var m = pla.match(ESPECIALS);
+    if (!m) return '';
+    var nucli = m[0].replace(/\s+/g, ' ');
+    var majuscules = (nucli === nucli.toUpperCase());
+    var paraules = pla.slice(m.index + m[0].length).trim().split(' ');
+    var cua = [];
+    for (var i = 0; i < paraules.length && cua.length < 8; i++) {
+      var p = paraules[i];
+      if (!p || TALL.test(p)) break;
+      var nomes = p.replace(/[^\wÀ-ÿ]/g, '');
+      if (!nomes) break;
+      if (majuscules) { if (nomes !== nomes.toUpperCase()) break; }
+      else { if (nomes.charAt(0) !== nomes.charAt(0).toLowerCase()) break; }
+      cua.push(p);
+    }
+    var t = (nucli + ' ' + cua.join(' ')).trim().replace(/[\s,;:.-]+$/, '');
+    if (t.length < 4) return '';
+    if (t === t.toUpperCase()) t = t.toLowerCase();
+    t = t.charAt(0).toUpperCase() + t.slice(1);
+    // els noms propis de les festes van amb majúscula
+    return t.replace(/\b(nadal|sant jordi|carnestoltes|pasqua|reis|tots sants)\b/gi, function (x) {
+      return x.replace(/\b[a-zà-ÿ]/g, function (c) { return c.toUpperCase(); });
+    });
+  });
 }
 
 function sufixComu(arr) {
