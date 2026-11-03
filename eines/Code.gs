@@ -44,6 +44,9 @@ var CONFIG = {
 
 /** Posa en marxa l'activador diari i fa la primera actualització. */
 function configurar() {
+  var problema = comprovarGitHub();
+  if (problema) { Logger.log('ATURAT. ' + problema); return; }
+  Logger.log('GitHub: hi arribo bé (' + CONFIG.GITHUB_USUARI + '/' + CONFIG.GITHUB_REPO + ').');
   ScriptApp.getProjectTriggers().forEach(function (t) { ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('actualitzar').timeBased().everyDays(1).atHour(6).create();
   Logger.log('Activador diari creat (cap a les 6 del matí).');
@@ -318,23 +321,63 @@ function clauDeText(s) {
 function urlGitHub() {
   return 'https://api.github.com/repos/' + CONFIG.GITHUB_USUARI + '/' + CONFIG.GITHUB_REPO + '/contents/' + CONFIG.GITHUB_FITXER;
 }
+function urlRepo() {
+  return 'https://api.github.com/repos/' + CONFIG.GITHUB_USUARI + '/' + CONFIG.GITHUB_REPO;
+}
 function capGitHub() {
   return { Authorization: 'Bearer ' + PropertiesService.getScriptProperties().getProperty('GITHUB_TOKEN'), Accept: 'application/vnd.github+json' };
 }
+
+/** Explica en català què vol dir el codi que ha tornat GitHub. */
+function problemaGitHub(codi) {
+  if (codi === 404) return 'GitHub diu que no troba el repositori "' + CONFIG.GITHUB_USUARI + '/' + CONFIG.GITHUB_REPO +
+    '". O està mal escrit al CONFIG, o el token ha caducat o no té permís sobre aquest repositori ' +
+    '(GitHub respon 404 i no 403 per no dir si el repositori existeix).';
+  if (codi === 401) return 'GitHub no accepta el token: mira la propietat GITHUB_TOKEN.';
+  if (codi === 403) return 'GitHub ha denegat la petició (permisos o límit de peticions).';
+  return 'GitHub ha respost ' + codi + '.';
+}
+
+/** Comprova que puc arribar al repositori. Torna '' si tot va bé, o el problema. */
+function comprovarGitHub() {
+  if (!PropertiesService.getScriptProperties().getProperty('GITHUB_TOKEN')) {
+    return 'No hi ha cap GITHUB_TOKEN a les propietats de l\'script.';
+  }
+  var r = UrlFetchApp.fetch(urlRepo(), { headers: capGitHub(), muteHttpExceptions: true });
+  return r.getResponseCode() === 200 ? '' : problemaGitHub(r.getResponseCode());
+}
+
+/**
+ * Llegeix el menus.json publicat.
+ * Torna null NOMÉS si el repositori es veu bé i el fitxer encara no hi és.
+ * Si no puc arribar al repositori, peto: val més aturar-se que no pas tornar a
+ * començar de zero i publicar un fitxer que es cruspeixi tots els altres mesos.
+ */
 function llegirDeGitHub() {
   var r = UrlFetchApp.fetch(urlGitHub() + '?ref=' + CONFIG.GITHUB_BRANCA, { headers: capGitHub(), muteHttpExceptions: true });
-  if (r.getResponseCode() !== 200) return null;
-  var j = JSON.parse(r.getContentText());
-  return JSON.parse(Utilities.newBlob(Utilities.base64Decode(j.content.replace(/\n/g, ''))).getDataAsString('UTF-8'));
+  var codi = r.getResponseCode();
+  if (codi === 200) {
+    var j = JSON.parse(r.getContentText());
+    return JSON.parse(Utilities.newBlob(Utilities.base64Decode(j.content.replace(/\n/g, ''))).getDataAsString('UTF-8'));
+  }
+  var problema = comprovarGitHub();
+  if (problema) throw new Error(problema);
+  if (codi === 404) { Logger.log('El ' + CONFIG.GITHUB_FITXER + ' encara no hi és: començo de zero.'); return null; }
+  throw new Error(problemaGitHub(codi));
 }
+
 function escriureAGitHub(dades) {
+  // Xarxa de seguretat: no publiquis mai un fitxer escanyolit per sobre d'un de bo.
+  var dies = Object.keys(dades.dies || {}).length;
+  if (dies < 10) throw new Error('No publico: només hi hauria ' + dies + ' dies. Alguna cosa ha anat malament en llegir els PDF.');
+
   var r = UrlFetchApp.fetch(urlGitHub() + '?ref=' + CONFIG.GITHUB_BRANCA, { headers: capGitHub(), muteHttpExceptions: true });
   var sha = r.getResponseCode() === 200 ? JSON.parse(r.getContentText()).sha : undefined;
   var cos = { message: 'Menús actualitzats', branch: CONFIG.GITHUB_BRANCA,
     content: Utilities.base64Encode(Utilities.newBlob(JSON.stringify(dades), 'application/json').getBytes()) };
   if (sha) cos.sha = sha;
   var w = UrlFetchApp.fetch(urlGitHub(), { method: 'put', headers: capGitHub(), contentType: 'application/json', payload: JSON.stringify(cos), muteHttpExceptions: true });
-  if (w.getResponseCode() >= 300) throw new Error('GitHub ' + w.getResponseCode() + ': ' + w.getContentText().slice(0, 300));
+  if (w.getResponseCode() >= 300) throw new Error(problemaGitHub(w.getResponseCode()) + ' · ' + w.getContentText().slice(0, 200));
 }
 
 // ===================== LECTOR DEL PDF =====================
