@@ -22,8 +22,13 @@ funcionen alhora:
 node eines/publica.js estat
 ```
 
-Diu quins mesos i dietes hi ha publicats i si falta el mes actual. Si acaba amb
-"No falta cap mes" i fa pocs dies que s'ha actualitzat, **no cal fer res més**.
+Diu quins mesos i dietes hi ha publicats. Si el mes en curs hi és i fa pocs dies
+que s'ha actualitzat, **no cal fer res més**.
+
+**Quan es penja cada mes:** l'empresa penja el mes següent els últims dies del
+mes anterior (el novembre de 2026, el dia 30). Per això val la pena mirar-ho del
+27 en endavant. Que el mes vinent encara no hi sigui el dia 28 és normal; que
+falti el mes en curs a partir de l'1, no.
 
 ### 2. Buscar els PDF al Drive
 

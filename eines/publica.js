@@ -90,14 +90,25 @@ function estat() {
     console.log('  ' + m + ': ' + Object.keys(permes[m]).sort().join(', '));
   });
 
-  // Què hauria d'estar publicat: el mes actual i, a partir del dia 25, el següent
-  var ara = new Date(), falten = [];
-  var cal = [mesClau(ara, 0)];
-  if (ara.getDate() >= 25) cal.push(mesClau(ara, 1));
-  cal.forEach(function (m) { if (!permes[m] || !permes[m].general) falten.push(m); });
-  console.log('\n' + (falten.length ? 'FALTA EL MENÚ DE: ' + falten.join(', ') : 'No falta cap mes.'));
+  // El mes en curs ha d'estar publicat sempre. El següent, l'empresa el penja
+  // els últims dies del mes (el novembre de 2026, el dia 30): fins a l'1 que no
+  // hi sigui encara és normal, i només cal mirar-ho, no alarmar-se.
+  var ara = new Date();
+  var actual = mesClau(ara, 0), vinent = mesClau(ara, 1);
+  var faltaActual = !permes[actual] || !permes[actual].general;
+  var faltaVinent = !permes[vinent] || !permes[vinent].general;
+
+  console.log('');
+  if (faltaActual) console.log('FALTA EL MENÚ DEL MES EN CURS (' + actual + '). Això sí que és un problema.');
+  else console.log('El mes en curs (' + actual + ') hi és.');
+
+  if (ara.getDate() >= 27) {
+    console.log(faltaVinent
+      ? 'Pendent: el mes vinent (' + vinent + ') encara no hi és. Mira si ja han penjat els PDF.'
+      : 'El mes vinent (' + vinent + ') ja hi és.');
+  }
   if (edat > 40) console.log('AVÍS: fa més de 40 dies que no s\'actualitza.');
-  process.exitCode = (falten.length || edat > 40) ? 1 : 0;
+  process.exitCode = (faltaActual || edat > 40) ? 1 : 0;
 }
 function mesClau(d, suma) {
   var x = new Date(d.getFullYear(), d.getMonth() + suma, 1);
