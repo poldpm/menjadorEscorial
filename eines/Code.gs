@@ -61,6 +61,7 @@ function actualitzar(forcar, deZero) {
   var ara = new Date();
   var mesMinim = ara.getFullYear() * 12 + ara.getMonth() - 1;
 
+  comprovarGitHub();  // de passada, mira quan caduca el token i avisa si toca
   var tots = buscarPdfs(), origens = tots.origens || {};
   var pdfs = tots.filter(function (f) {
     var m = f.getName().match(RE_NOM);
@@ -344,7 +345,46 @@ function comprovarGitHub() {
     return 'No hi ha cap GITHUB_TOKEN a les propietats de l\'script.';
   }
   var r = UrlFetchApp.fetch(urlRepo(), { headers: capGitHub(), muteHttpExceptions: true });
+  vigilarToken(r);
   return r.getResponseCode() === 200 ? '' : problemaGitHub(r.getResponseCode());
+}
+
+/**
+ * GitHub diu quan caduca el token en una capçalera de cada resposta.
+ * Quan falta menys d'un mes, avisa per correu. Un avís per setmana, no més.
+ */
+function vigilarToken(resposta) {
+  try {
+    var caps = resposta.getAllHeaders(), quan = '';
+    Object.keys(caps).forEach(function (k) {
+      if (k.toLowerCase() === 'github-authentication-token-expiration') quan = String(caps[k]);
+    });
+    if (!quan) return;  // els tokens clàssics no la porten
+
+    var data = new Date(quan.replace(' UTC', 'Z').replace(' ', 'T'));
+    if (isNaN(data)) return;
+    var dies = Math.floor((data - new Date()) / 86400000);
+    Logger.log('El token de GitHub caduca el ' + quan + ' (d\'aquí a ' + dies + ' dies).');
+    if (dies > 30) return;
+
+    var props = PropertiesService.getScriptProperties();
+    var ultim = props.getProperty('AVIS_TOKEN');
+    if (ultim && (Date.now() - +ultim) < 7 * 86400000) return;
+    props.setProperty('AVIS_TOKEN', String(Date.now()));
+
+    MailApp.sendEmail(CONFIG.AVIS_EMAIL,
+      'Menú menjador: el token de GitHub caduca d\'aquí a ' + dies + ' dies',
+      'El token que fa servir l\'script per publicar els menús caduca el ' + quan + '.\n\n' +
+      'Quan caduqui, la web es quedarà amb el mes que hi hagi i no s\'actualitzarà més.\n\n' +
+      'Per renovar-lo:\n' +
+      '1. https://github.com/settings/personal-access-tokens\n' +
+      '2. Obre el token del menjador i fes "Regenerate", o crea\'n un de nou amb\n' +
+      '   accés només al repositori ' + CONFIG.GITHUB_USUARI + '/' + CONFIG.GITHUB_REPO + '\n' +
+      '   i permís Contents: Read and write.\n' +
+      '3. Copia\'l a Apps Script → Configuració del projecte → Propietats de l\'script\n' +
+      '   → GITHUB_TOKEN (substitueix el valor que hi ha).\n' +
+      '4. Executa configurar(). Ha de sortir "GitHub: hi arribo bé".\n');
+  } catch (e) { Logger.log('No he pogut mirar la caducitat del token: ' + e.message); }
 }
 
 /**
