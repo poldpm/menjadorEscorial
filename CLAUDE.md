@@ -14,3 +14,10 @@ GitHub és l'única còpia que veuen tots. Per tant, **sense que ho demani**:
   i verificat, mai a mig fer.
 - Si el pull o el push fallen, digues-ho clarament: si no, el canvi es queda
   en un sol ordinador i en Pol no ho sabrà.
+
+## Menús: com s'actualitzen
+
+Abans de tocar res relacionat amb els menús, llegeix `ACTUALITZAR.md`.
+Mai editis `menus.json` a mà: fes-ho amb `eines/publica.js`, que comprova la
+lectura abans de publicar. Si rebutja un PDF, no el forcis: vol dir que s'ha
+llegit malament i ho llegeixen famílies amb al·lèrgies.
